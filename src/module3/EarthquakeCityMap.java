@@ -24,8 +24,8 @@ import parsing.ParseFeed;
 /** EarthquakeCityMap
  * An application with an interactive map displaying earthquake data.
  * Author: UC San Diego Intermediate Software Development MOOC team
- * @author Your name here
- * Date: July 17, 2015
+ * @author Gillian Smith
+ * Date: January 22, 2016
  * */
 public class EarthquakeCityMap extends PApplet {
 
@@ -49,6 +49,11 @@ public class EarthquakeCityMap extends PApplet {
 	//feed with magnitude 2.5+ Earthquakes
 	private String earthquakesURL = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
 
+	// define colours for markers
+	private int yellow = color( 255, 255, 0 );
+	private int red = color( 255, 0, 0 );
+	private int blue = color( 0, 0, 255 );
+	
 	
 	public void setup() {
 		size(950, 600, OPENGL);
@@ -60,7 +65,7 @@ public class EarthquakeCityMap extends PApplet {
 		else {
 			map = new UnfoldingMap(this, 200, 50, 700, 500, new Google.GoogleMapProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
-			//earthquakesURL = "2.5_week.atom";
+			 earthquakesURL = "2.5_week.atom";
 		}
 		
 	    map.zoomToLevel(2);
@@ -83,20 +88,37 @@ public class EarthquakeCityMap extends PApplet {
 	    	// PointFeatures also have a getLocation method
 	    }
 	    
-	    // Here is an example of how to use Processing's color method to generate 
-	    // an int that represents the color yellow.  
-	    int yellow = color(255, 255, 0);
+	    // create markers for each earthquake
+	    for ( PointFeature pf : earthquakes ) {
+	    	markers.add( createMarker( pf ) );    	
+	    }
 	    
-	    //TODO: Add code here as appropriate
-	}
+	    map.addMarkers( markers );
+	} // end of setup()
 		
 	// A suggested helper method that takes in an earthquake feature and 
 	// returns a SimplePointMarker for that earthquake
-	// TODO: Implement this method and call it from setUp, if it helps
 	private SimplePointMarker createMarker(PointFeature feature)
 	{
-		// finish implementing and use this method, if it helps.
-		return new SimplePointMarker(feature.getLocation());
+		SimplePointMarker spm = new SimplePointMarker( feature.getLocation() );
+		
+		// find out the magnitude of the earthquake
+		Object magObj = feature.getProperty( "magnitude" );
+		float mag = Float.parseFloat( magObj.toString() );
+		
+		if ( mag >=  THRESHOLD_MODERATE ) {
+			spm.setColor( red );
+			spm.setRadius( (float) 16 );
+		}
+		else if ( mag < THRESHOLD_LIGHT ) {
+			spm.setColor( blue );
+			spm.setRadius( (float) 5 );
+		}
+		else {
+			spm.setColor( yellow );
+		}
+		
+		return spm;
 	}
 	
 	public void draw() {
@@ -107,10 +129,65 @@ public class EarthquakeCityMap extends PApplet {
 
 
 	// helper method to draw key in GUI
-	// TODO: Implement this method to draw the key
 	private void addKey() 
 	{	
 		// Remember you can use Processing's graphics methods here
-	
+	    
+		//
+		//rect(a, b, c, d, e)
+		// a = x co-ord, b = y co-ord, c = width, d = height, e = radii for all 4 corners
+		// 
+		// ellipse(a, b, c, d)
+		// a = x co-ord, b = y co-ord, c = width, d = height
+		// when width = height, ellipse is a circle
+		//
+		// text(s, x, y, z)
+		// s = string to be displayed, x = x co-ord, y = y co-ord, z = depth, default is 0
+		// ie 1 line
+		//
+		// fill(rgb)
+		// fill ( v1, v2, v3  )
+		// v1= red value, v2 = green value, v3 blue value
+		
+		//set up the key area
+		fill( 250, 243, 243 );
+
+		rect( 30, 50, 150, 200, 24 );
+		
+		// title
+		textSize( 14 );
+		textAlign( CENTER );
+		fill( 50 );
+		text( "Earthquake Key", 100, 90 );
+		
+		// set the red marker
+		fill( 255, 0, 0 );
+		ellipse( 50, 120, 15, 15 );
+		
+		// set the red marker text
+		textSize( 12 );
+		textAlign( LEFT );
+		fill( 50 );
+		text( "5.0+ Magnitude", 70, 125 );
+		
+		// set the yellow marker
+		fill( 255, 255, 0 );
+		ellipse( 50, 150, 10, 10 );
+				
+		// set the yellow marker text
+		textSize( 12 );
+		textAlign( LEFT );
+		fill( 50 );
+		text( "4.0+ Magnitude", 70, 155 );
+				
+		// set the blue marker
+		fill( 0, 0, 255 );
+		ellipse( 50, 180, 5, 5 );
+				
+		// set the blue marker text
+		textSize( 12 );
+		textAlign( LEFT );
+		fill( 50 );
+		text( "Below 4.0", 70, 185 );
 	}
 }
