@@ -20,8 +20,8 @@ import processing.core.PApplet;
 /** EarthquakeCityMap
  * An application with an interactive map displaying earthquake data.
  * Author: UC San Diego Intermediate Software Development MOOC team
- * @author Your name here
- * Date: July 17, 2015
+ * @author Gillian Smith
+ * Date: February 7 2016
  * */
 public class EarthquakeCityMap extends PApplet {
 	
@@ -173,8 +173,91 @@ public class EarthquakeCityMap extends PApplet {
 		// TODO: Implement this method
 		// Hint: You probably want a helper method or two to keep this code
 		// from getting too long/disorganized
+		
+		if ( lastClicked != null ) {
+			lastClicked = null;
+			// display everything
+			unhideMarkers();
+		}
+		else {
+			selectMarkerIfClicked( quakeMarkers );
+			selectMarkerIfClicked( cityMarkers );
+			
+			if ( lastClicked != null ) {
+				if ( lastClicked instanceof EarthquakeMarker ) {
+					hideNotSelectedMarkers( quakeMarkers );
+					setCityMarkersWRTThreatCircle( cityMarkers );
+				}
+				else { // clicked on City
+					hideNotSelectedMarkers( cityMarkers );
+					setQuakeMarkersWRTThreatCircle( quakeMarkers );
+				}
+			}
+		}
+	}
+
+	/*
+	 * hide quake markers if outside threat circle and display them if inside
+	 * threat circle
+	 */
+	private void setQuakeMarkersWRTThreatCircle( List<Marker> quakeMarkers ) {
+		for ( Marker qm : quakeMarkers ) {
+			if ( qm.getLocation().getDistance( lastClicked.getLocation())
+					> ( ( EarthquakeMarker ) qm ).threatCircle() ) {
+				qm.setHidden( true );
+			}
+			else {
+				qm.setHidden( false );
+			}
+		}
 	}
 	
+	/*
+	 *  hide the makers which are NOT the last clicked marker
+	 */
+	private void hideNotSelectedMarkers( List<Marker> markers ) {
+		for ( Marker m : markers ) {
+			if ( !m.equals( lastClicked )) {
+				m.setHidden( true );
+			}
+		}
+	}
+
+	/*
+	 * hide the city marker if outside of threat circle and display it if 
+	 * within threat circle
+	 */
+	private void setCityMarkersWRTThreatCircle( List<Marker> markers ) {
+		
+		for ( Marker cm : cityMarkers ) {
+			// outside of threat circle - so hide
+			if ( cm.getLocation().getDistance( lastClicked.getLocation() )
+				> ( ( EarthquakeMarker ) lastClicked).threatCircle() ) {
+					cm.setHidden( true );
+				}
+			else {
+				cm.setHidden( false );
+			}
+		}
+	}
+	
+	private void selectMarkerIfClicked( List<Marker> markers ) {
+		
+		for ( Marker m: markers ) {
+			// want to stop iterating as soon as found first marker under cursor
+			if ( lastClicked != null ) {
+				break;
+			}
+			
+			// check if cursor clicked inside marker
+			if ( m.isInside( map,  mouseX,  mouseY )) {
+				lastClicked = ( CommonMarker ) m;
+				lastClicked.setClicked( true );
+				break;
+			}
+		}
+		
+	}
 	
 	// loop over and unhide all markers
 	private void unhideMarkers() {
