@@ -72,7 +72,7 @@ public class EarthquakeCityMap extends PApplet {
 		else {
 			map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
-		    //earthquakesURL = "2.5_week.atom";
+		    earthquakesURL = "2.5_week.atom";
 		}
 		MapUtils.createDefaultEventDispatcher(this, map);
 		
@@ -146,6 +146,20 @@ public class EarthquakeCityMap extends PApplet {
 	private void selectMarkerIfHover(List<Marker> markers)
 	{
 		// TODO: Implement this method
+				
+		for ( Marker m: markers ) {
+			// want to stop iterating as soon as found first marker under cursor
+			if ( lastSelected != null ) {
+				break;
+			}
+			
+			// check if cursor inside marker
+			if ( m.isInside( map,  mouseX,  mouseY )) {
+				m.setSelected( true );
+				lastSelected = ( CommonMarker ) m;
+				break;
+			}
+		}
 	}
 	
 	/** The event handler for mouse clicks
