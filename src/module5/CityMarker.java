@@ -53,12 +53,30 @@ public class CityMarker extends CommonMarker {
 		
 		// TODO: Implement this method
 		//System.out.println("hovering over "+this.getCity());
-		pg.fill( 50 );
-		pg.strokeWeight(2 );
-		pg.textSize( 12 );
-		pg.text( getCity(), x + 7, y );
-		pg.text( getCountry(), x + 7, y + 10 );
-		pg.text( getPopulation(), x + 7, y + 20 );
+		 // save previous styling
+        pg.pushStyle();
+       
+        // get the text and calculate the length
+        String name = getCity() + " " + getCountry() + " ";
+		String pop = "Pop: " + getPopulation() + " million";
+		float nw = pg.textWidth( name );
+		float np = pg.textWidth( pop );
+		float w = nw > np ? nw : np;
+       
+        // create the rectangle
+        pg.stroke( 110 );
+        pg.fill( 234, 235,213 );
+        pg.rect( x, y + 10, w + 8, 36, 7 );
+       
+        // write the text in the rectangle
+        pg.textAlign(PConstants.LEFT, PConstants.TOP);
+        pg.fill( 0 );
+        pg.textSize( 12 );
+        pg.text( name, x + 3 , y + 12 );
+        pg.text( pop, x + 3 , y + 28 );
+        
+     // Restore previous drawing style
+     		pg.popStyle();
 	}
 	
 	
